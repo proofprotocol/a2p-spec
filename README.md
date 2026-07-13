@@ -1,11 +1,11 @@
-# PP-SPEC-007 · Agent-to-Agent Proof Protocol
+# PP-SPEC-002 · Proof Validity Specification
 
-**Document ID:** PP-SPEC-007
+**Document ID:** PP-SPEC-002
 **Status:** Published
 **License:** CC BY 4.0
 
-Agents and humans do not trust agents. They trust proof.
+A valid proof must be structurally impossible to fabricate retroactively.
 
 ## Full Specification
 
-[PP-SPEC-007-a2p-spec.md](./PP-SPEC-007-a2p-spec.md)
+[proof-validity-spec.md](./proof-validity-spec.md)
