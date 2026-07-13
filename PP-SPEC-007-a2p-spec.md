@@ -1,20 +1,24 @@
-# Agent-to-Agent Proof Protocol (HV-A2P)
+# PP-SPEC-007 · Agent-to-Agent Proof Protocol (HV-A2P)
 
 **Document ID:** PP-SPEC-007  
 **Version:** 1.0  
 **Status:** Published  
 **License:** CC BY 4.0  
 **Maintained by:** Proof Economy Standards Alliance (PESA)  
-**Repository:** https://github.com/proofprotocol  
+**Repository:** https://github.com/proofprotocol/a2p-spec  
 **Published:** 2026-07-12  
 
 ---
 
 ## Abstract
 
-This specification defines the Agent-to-Agent Proof Protocol (HV-A2P): the handshake, envelope format, and receiving agent attestation requirements for cryptographic proof exchange between autonomous AI security agents. It establishes what must be declared before an exchange begins, what the proof payload envelope must contain, how the receiving agent attests to receipt of an intact bundle, and how the exchange itself becomes a proof record in the chain.
+This specification defines the HACKERverse Agent-to-Agent Proof Protocol (HV-A2P): the trust signaling mechanism by which autonomous agents verify behavioral proof before accepting instructions from, transacting with, or delegating authority to other agents.
 
-HV-A2P extends the Proof Protocol to the agentic layer — where decisions are made at machine speed, human review of individual actions is impractical, and the question of what an agent did, when it did it, and under what authority becomes a critical accountability requirement.
+In the quint economy — where agents transact with agents at machine speed across enterprise systems — trust cannot depend on human review. It must be cryptographic, verifiable, and anchored to an independent public record.
+
+Agents and humans do not trust agents. They trust proof.
+
+HV-A2P defines how that proof is requested, presented, verified, and recorded between autonomous agents.
 
 ---
 
@@ -28,547 +32,177 @@ This document is a published specification of the Proof Protocol. It is released
 
 1. [Motivation](#1-motivation)
 2. [Terminology](#2-terminology)
-3. [Protocol Overview](#3-protocol-overview)
-4. [Pre-Exchange Declaration](#4-pre-exchange-declaration)
-5. [The Proof Envelope](#5-the-proof-envelope)
-6. [The Handshake Protocol](#6-the-handshake-protocol)
-7. [Receiving Agent Attestation](#7-receiving-agent-attestation)
-8. [Exchange as a Chain Record](#8-exchange-as-a-chain-record)
-9. [Failure Modes and Rejection Criteria](#9-failure-modes-and-rejection-criteria)
-10. [Multi-Agent Chains](#10-multi-agent-chains)
-11. [Identity and Authentication](#11-identity-and-authentication)
-12. [Conformance](#12-conformance)
-13. [Relationship to Other Proof Protocol Specifications](#13-relationship-to-other-proof-protocol-specifications)
-14. [Security Considerations](#14-security-considerations)
-15. [IANA Considerations](#15-iana-considerations)
-16. [References](#16-references)
-17. [Authors](#17-authors)
+3. [Trust Tiers](#3-trust-tiers)
+4. [Proof Request](#4-proof-request)
+5. [Proof Presentation](#5-proof-presentation)
+6. [Verification Procedure](#6-verification-procedure)
+7. [ProofRegister Integration](#7-proofregister-integration)
+8. [AgenTwin Witness Layer](#8-agentwin-witness-layer)
+9. [Conformance](#9-conformance)
+10. [References](#10-references)
+11. [Authors](#11-authors)
 
 ---
 
 ## 1. Motivation
 
-Autonomous AI security agents produce decisions, take actions, and pass information to other agents without human intermediation. A single agentic workflow may involve dozens of agent handoffs — threat detection, triage, containment, remediation, reporting — each occurring in milliseconds, each producing an action that may have real consequences for a defended system.
+Autonomous agents are booking travel, executing trades, writing code, sending emails, and making purchasing decisions on behalf of humans and other agents. When an agent receives an instruction from another agent, it has no way to verify that the instructing agent behaved safely in the past, is operating under a known policy, or has not been compromised.
 
-The existing security attestation model has no answer for this. Logs record what agents reported about themselves. Reports summarize outcomes after the fact. Neither establishes a tamper-evident, independently-witnessed record of what passed between agents, when it passed, and whether the receiving agent acted on an intact and unmodified payload.
+The result is a trust vacuum at the core of the agentic economy. Agents delegate to agents that delegate to agents, with no verifiable record of behavior at any layer.
 
-HV-A2P defines the structural requirements for proof exchange between agents. It does not prescribe agent architecture, communication transport, or orchestration model. It defines what must be true of a proof artifact before, during, and after an agent-to-agent exchange for that exchange to be considered provable rather than merely logged.
-
-The core problem HV-A2P solves: **an agent receiving a proof payload must be able to verify that what it received is what was sent, that it was sent under a declared pre-exchange commitment, and that its own receipt constitutes a witnessed chain event.**
+HV-A2P fills that vacuum. It defines a lightweight proof handshake that any agent can implement to request, present, and verify behavioral proof before accepting an instruction or completing a transaction.
 
 ---
 
 ## 2. Terminology
 
-The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** in this document are to be interpreted as described in RFC 2119.
+**Requesting Agent** — the agent requesting proof from a counterparty before proceeding.
 
-**Sending Agent:** The autonomous agent initiating a proof exchange. Responsible for constructing the proof envelope and initiating the handshake.
+**Presenting Agent** — the agent presenting proof of its own behavioral history.
 
-**Receiving Agent:** The autonomous agent accepting a proof exchange. Responsible for validating the envelope, attesting to receipt, and recording the exchange as a chain event.
+**ProofBundle** — the portable evidence artifact defined in PP-SPEC-003.
 
-**Proof Envelope:** The structured container carrying a proof payload from sending agent to receiving agent. Defined in Section 5.
+**ProofRegister Record** — a permanent anchored record in ProofRegister identified by a Proof Record ID (PR-YYYY-NNNNN).
 
-**Exchange Commitment:** A cryptographic hash of the proof envelope contents committed to a Verifiable Randomness Source before the exchange transmission begins. Analogous to the pre-execution commitment in PP-SPEC-002.
+**ProofStamp Token** — the certification mark authorization token issued by HACKERverse attesting that a product or agent meets Proof Protocol certification criteria.
 
-**Agent Identity Token (AIT):** A cryptographic credential uniquely identifying an agent instance, version, and runtime context. Required for both sending and receiving agents.
+**AgenTwin** — the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles for anchoring.
 
-**Handshake:** The structured negotiation sequence through which sending and receiving agents establish exchange parameters before payload transmission. Defined in Section 6.
-
-**Receiving Attestation:** The receiving agent's signed declaration that it received an intact proof envelope matching the exchange commitment. Defined in Section 7.
-
-**Exchange Record:** A proof chain entry documenting a completed agent-to-agent exchange, including envelope hash, both agent identities, exchange commitment reference, and receiving attestation. Defined in Section 8.
-
-**Verifiable Randomness Source (VRS):** An external, publicly auditable source of timestamped randomness that neither agent nor their operators controls. The NIST Randomness Beacon is the reference implementation.
-
-**Proof Chain:** The append-only hash-linked record sequence defined in PP-SPEC-001 and PP-SPEC-002, extended here to include exchange records.
-
-**ProofRegister:** The append-only public registry where completed proof bundles and exchange records are anchored.
+**Trust Tier** — the level of proof required before an agent proceeds with an interaction. Defined in Section 3.
 
 ---
 
-## 3. Protocol Overview
+## 3. Trust Tiers
 
-HV-A2P operates in four phases:
+HV-A2P defines three trust tiers. The requesting agent declares the minimum tier required before proceeding.
 
-```
-PHASE 1 — PRE-EXCHANGE DECLARATION
-  Sending agent declares intent, constructs envelope, commits to VRS
+| Tier | Name | Requirement |
+|------|------|-------------|
+| T1 | Self-Asserted | Agent presents a signed identity claim. No proof required. Lowest trust. |
+| T2 | Registry-Verified | Agent presents a valid ProofRegister Record ID. Requesting agent verifies the record exists and is not revoked. |
+| T3 | Stamp-Certified | Agent presents a valid ProofStamp Token. Requesting agent verifies the token against the HACKERverse public key. Highest trust. |
 
-PHASE 2 — HANDSHAKE
-  Agents negotiate exchange parameters
-  Receiving agent declares readiness and pre-receipt identity
-
-PHASE 3 — ENVELOPE TRANSMISSION
-  Sending agent transmits proof envelope
-  Receiving agent validates envelope integrity
-
-PHASE 4 — RECEIVING ATTESTATION AND CHAIN RECORD
-  Receiving agent signs attestation
-  Exchange recorded as proof chain event
-  Chain record anchored to ProofRegister
-```
-
-Each phase produces artifacts that are verifiable independently. The exchange is only considered complete when Phase 4 is anchored. An exchange that completes Phases 1-3 but is never anchored is Proof-Attempted under PP-SPEC-002.
+T1 is the SAO tier — self-attesting, institutionally incomplete. T2 and T3 require independent verification. Agents operating in regulated environments or high-stakes workflows should require T3.
 
 ---
 
-## 4. Pre-Exchange Declaration
+## 4. Proof Request
 
-Before initiating a handshake, the sending agent MUST construct and commit an Exchange Declaration.
-
-### 4.1 Exchange Declaration Fields
+A requesting agent initiates a proof handshake by sending a ProofRequest:
 
 ```json
 {
-  "exchange_declaration": {
-    "exchange_id": "<UUID v4>",
-    "protocol_version": "HV-A2P/1.0",
-    "sending_agent": {
-      "agent_id": "<AIT identifier>",
-      "agent_name": "<human-readable name>",
-      "agent_version": "<version string>",
-      "agent_fingerprint": "<SHA-256 of agent binary or config>",
-      "operator_id": "<operator identifier>"
-    },
-    "declared_receiving_agent": {
-      "agent_id": "<AIT identifier of intended recipient>",
-      "agent_name": "<human-readable name>"
-    },
-    "payload_description": "<plain language description of proof payload>",
-    "payload_hash": "<SHA-256 of proof envelope contents — computed before transmission>",
-    "declared_witness_ids": ["<witness_id_1>", "..."],
-    "exchange_scope": "<description of what this exchange covers>",
-    "declaration_timestamp_utc": "<ISO 8601>"
-  }
+  "hv_a2p_version": "1.0",
+  "request_id": "<uuidv7>",
+  "requesting_agent": "<agent identity string>",
+  "timestamp": "<RFC 3339 UTC>",
+  "minimum_trust_tier": "<T1 | T2 | T3>",
+  "nist_pulse_index": "<current NIST Beacon pulse index>",
+  "challenge": "<32 bytes random hex>"
 }
 ```
 
-### 4.2 VRS Commitment
-
-The sending agent MUST submit the SHA-256 hash of the Exchange Declaration to a VRS before initiating the handshake. The VRS response MUST be recorded.
-
-```json
-{
-  "vrs_commitment": {
-    "vrs_provider": "NIST Randomness Beacon",
-    "vrs_pulse_uri": "<pulse URI>",
-    "vrs_pulse_sequence": "<integer>",
-    "vrs_seed_value": "<hex>",
-    "vrs_output_value": "<hex>",
-    "declaration_hash": "<SHA-256 of exchange_declaration>",
-    "commitment_timestamp_utc": "<ISO 8601>"
-  }
-}
-```
-
-**Requirement:** The handshake MUST NOT begin until the VRS commitment is recorded. Any exchange initiated before VRS commitment is invalid under this specification.
+The `nist_pulse_index` binds the request to a specific moment in time. The `challenge` is a random value the presenting agent must sign to prove live possession of its key.
 
 ---
 
-## 5. The Proof Envelope
+## 5. Proof Presentation
 
-The Proof Envelope is the container carrying the proof payload from sending agent to receiving agent.
-
-### 5.1 Envelope Structure
+The presenting agent responds with a ProofPresentation:
 
 ```json
 {
-  "proof_envelope": {
-    "envelope_id": "<UUID v4>",
-    "exchange_id": "<matches exchange_declaration.exchange_id>",
-    "protocol_version": "HV-A2P/1.0",
-    "envelope_header": {
-      "sending_agent_id": "<AIT identifier>",
-      "receiving_agent_id": "<AIT identifier>",
-      "vrs_pulse_sequence": "<integer — from VRS commitment>",
-      "declaration_hash": "<SHA-256 of exchange_declaration>",
-      "payload_hash": "<SHA-256 of proof_payload — must match declaration>",
-      "envelope_created_utc": "<ISO 8601 — must postdate VRS pulse>"
-    },
-    "proof_payload": {
-      "payload_type": "PROOF_BUNDLE | PROOF_RECORD | PROOF_FRAGMENT | PROOF_QUERY_RESPONSE",
-      "payload_version": "<version string>",
-      "payload_content": { },
-      "payload_content_hash": "<SHA-256 of payload_content>"
-    },
-    "witness_declarations": [
-      {
-        "witness_id": "<identifier>",
-        "witness_class": 1,
-        "declared_pre_exchange": true,
-        "attestation_method": "<description>"
-      }
-    ],
-    "proofchain_reference": {
-      "campaign_id": "<ProofRegister campaign identifier>",
-      "parent_record_hash": "<hash of preceding chain record>",
-      "anchor_block": "<ProofRegister block number if pre-anchored>"
-    },
-    "envelope_hash": "<SHA-256 of entire envelope excluding this field>"
-  }
-}
-```
-
-### 5.2 Payload Types
-
-| Type | Description |
-|------|-------------|
-| `PROOF_BUNDLE` | A complete proof bundle as defined in PP-SPEC-003 |
-| `PROOF_RECORD` | A single chain record being passed for chain continuation |
-| `PROOF_FRAGMENT` | A partial proof payload declared as incomplete with gap declaration |
-| `PROOF_QUERY_RESPONSE` | A response to a proof registry query, carrying anchored record data |
-
-### 5.3 Envelope Integrity Requirements
-
-- The `envelope_header.payload_hash` MUST match `proof_payload.payload_content_hash`
-- The `envelope_header.payload_hash` MUST match `exchange_declaration.payload_hash`
-- The `envelope_header.envelope_created_utc` MUST postdate the VRS pulse timestamp
-- The `envelope_hash` MUST be computed over all envelope fields excluding the `envelope_hash` field itself
-- Any mismatch in any hash field constitutes envelope tampering and MUST result in rejection
-
----
-
-## 6. The Handshake Protocol
-
-The handshake is the structured negotiation sequence through which agents establish exchange parameters before payload transmission.
-
-### 6.1 Handshake Sequence
-
-```
-SENDING AGENT                          RECEIVING AGENT
-      |                                       |
-      |---- EXCHANGE_INIT ------------------->|
-      |     exchange_id                       |
-      |     protocol_version                  |
-      |     sending_agent AIT                 |
-      |     vrs_commitment reference          |
-      |     payload_hash                      |
-      |     declared_scope                    |
-      |                                       |
-      |<--- EXCHANGE_ACK ---------------------|
-      |     exchange_id                       |
-      |     receiving_agent AIT               |
-      |     receiving_agent_fingerprint       |
-      |     ack_timestamp_utc                 |
-      |     readiness_declaration             |
-      |                                       |
-      |---- ENVELOPE_TRANSMIT --------------->|
-      |     proof_envelope                    |
-      |                                       |
-      |<--- ENVELOPE_RECEIVED ----------------|
-      |     exchange_id                       |
-      |     envelope_hash (echo)              |
-      |     receipt_timestamp_utc             |
-      |     integrity_check: PASS | FAIL      |
-      |                                       |
-      |<--- RECEIVING_ATTESTATION ------------|
-      |     signed attestation record         |
-      |     chain_record_hash                 |
-      |                                       |
-      |---- EXCHANGE_COMPLETE --------------->|
-      |     anchor_reference                  |
-      |                                       |
-```
-
-### 6.2 EXCHANGE_INIT Message
-
-```json
-{
-  "message_type": "EXCHANGE_INIT",
-  "exchange_id": "<UUID v4>",
-  "protocol_version": "HV-A2P/1.0",
-  "sending_agent_id": "<AIT identifier>",
-  "vrs_commitment": { },
-  "payload_hash": "<SHA-256>",
-  "declared_scope": "<exchange scope string>",
-  "init_timestamp_utc": "<ISO 8601>"
-}
-```
-
-### 6.3 EXCHANGE_ACK Message
-
-The receiving agent MUST validate the sending agent AIT and VRS commitment before issuing ACK. An ACK constitutes a pre-receipt declaration and is binding.
-
-```json
-{
-  "message_type": "EXCHANGE_ACK",
-  "exchange_id": "<UUID v4>",
-  "receiving_agent_id": "<AIT identifier>",
-  "receiving_agent_name": "<human-readable name>",
-  "receiving_agent_version": "<version string>",
-  "receiving_agent_fingerprint": "<SHA-256 of agent binary or config>",
-  "readiness_declaration": "READY_TO_RECEIVE",
-  "ack_timestamp_utc": "<ISO 8601>"
-}
-```
-
-**Requirement:** The receiving agent MUST NOT issue ACK if it cannot verify the sending agent AIT or if the VRS commitment reference is missing or unverifiable. An ACK issued without VRS verification constitutes a non-conforming exchange.
-
-### 6.4 ENVELOPE_RECEIVED Message
-
-```json
-{
-  "message_type": "ENVELOPE_RECEIVED",
-  "exchange_id": "<UUID v4>",
-  "envelope_hash_echo": "<SHA-256 — must match sending agent's envelope_hash>",
-  "integrity_check": "PASS | FAIL",
-  "integrity_failure_reason": "<required if FAIL>",
-  "receipt_timestamp_utc": "<ISO 8601>"
-}
-```
-
-### 6.5 EXCHANGE_COMPLETE Message
-
-Sent by the sending agent after receiving the RECEIVING_ATTESTATION to close the exchange and provide the anchor reference.
-
-```json
-{
-  "message_type": "EXCHANGE_COMPLETE",
-  "exchange_id": "<UUID v4>",
-  "anchor_reference": {
-    "registry": "ProofRegister",
-    "campaign_id": "<identifier>",
-    "block_number": "<integer>",
-    "anchor_hash": "<SHA-256>",
-    "registry_query_uri": "<URI>"
+  "hv_a2p_version": "1.0",
+  "request_id": "<echo of request_id>",
+  "presenting_agent": "<agent identity string>",
+  "timestamp": "<RFC 3339 UTC>",
+  "trust_tier": "<T1 | T2 | T3>",
+  "proof": {
+    "proof_record_id": "<PR-YYYY-NNNNN>",
+    "proofregister_uri": "https://proofregister.com/record/<id>",
+    "proofstamp_token": "<hex | null>",
+    "root_hash": "<sha256:hex>",
+    "signer_key": "<hex Ed25519 public key>"
   },
-  "complete_timestamp_utc": "<ISO 8601>"
+  "challenge_response": "<Ed25519 signature of challenge hex>"
 }
 ```
 
+The `challenge_response` proves the presenting agent controls the key that signed its receipts. A valid challenge response plus a valid ProofRegister record constitutes T2. A valid ProofStamp token constitutes T3.
+
 ---
 
-## 7. Receiving Agent Attestation
+## 6. Verification Procedure
 
-The receiving agent's attestation is the signed declaration that it received an intact proof envelope. It is not optional. An exchange without a receiving attestation is Proof-Attempted.
+Upon receiving a ProofPresentation the requesting agent:
 
-### 7.1 Attestation Record
+1. Verifies `challenge_response` against `proof.signer_key` and the original `challenge`
+2. If T2 or T3: queries ProofRegister at `proof.proofregister_uri` and confirms the record exists, is not revoked, and `root_hash` matches
+3. If T3: verifies `proofstamp_token` against the HACKERverse published public key at proofstamp.io
+4. Records the verification result in its own AgenTwin witness log
 
-```json
-{
-  "receiving_attestation": {
-    "exchange_id": "<UUID v4>",
-    "attesting_agent_id": "<AIT identifier>",
-    "attesting_agent_fingerprint": "<SHA-256>",
-    "envelope_hash_attested": "<SHA-256 — must match envelope_hash>",
-    "vrs_pulse_sequence_attested": "<integer — from exchange commitment>",
-    "payload_hash_attested": "<SHA-256 — must match payload_hash in envelope header>",
-    "attestation_statements": [
-      "I received an envelope identified by exchange_id matching the declared envelope_hash",
-      "The received envelope payload hash matches the hash declared in the pre-exchange commitment",
-      "My agent identity at time of receipt is as declared in this attestation",
-      "I am recording this exchange as a proof chain event"
-    ],
-    "attestation_timestamp_utc": "<ISO 8601 — must postdate ENVELOPE_RECEIVED>",
-    "attestation_signature": "<cryptographic signature over attestation record>"
-  }
-}
+If verification fails at the required tier the requesting agent must not proceed with the interaction.
+
+---
+
+## 7. ProofRegister Integration
+
+ProofRegister (proofregister.com) is the canonical public ledger that T2 and T3 verification depends on. It exposes a simple query API:
+
+```
+GET https://proofregister.com/record/<proof_record_id>
 ```
 
-### 7.2 Attestation Signature Requirements
+Returns the ProofBundle metadata, root hash, anchor timestamp, and revocation status. No authentication required for queries.
 
-- The signature MUST be produced using a key pair associated with the receiving agent's AIT
-- The signature MUST cover the full attestation record excluding the `attestation_signature` field
-- The signing key MUST be verifiable against the receiving agent's declared identity
-- An attestation with an unverifiable signature is equivalent to no attestation
+ProofRegister is not required for receipt validity. Receipts are independently verifiable offline. ProofRegister is required for T2 and T3 agent trust verification because it provides the permanent independent record that neither agent controls.
 
 ---
 
-## 8. Exchange as a Chain Record
+## 8. AgenTwin Witness Layer
 
-A completed HV-A2P exchange MUST be recorded as a proof chain event. The exchange record is a first-class chain entry with the same hash-linking requirements as any other chain record under PP-SPEC-001.
+AgenTwin is the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles. In the context of HV-A2P:
 
-### 8.1 Exchange Chain Record
+- AgenTwin observes agent interactions in real time
+- For each interaction it assembles a ProofBundle containing receipt, pubkey, and verifier output
+- The ProofBundle is anchored to ProofRegister
+- The resulting Proof Record ID is available for use in future ProofPresentations
 
-```json
-{
-  "record_id": "<sequential integer in parent chain>",
-  "record_type": "AGENT_EXCHANGE",
-  "exchange_id": "<UUID v4>",
-  "sending_agent_id": "<AIT identifier>",
-  "receiving_agent_id": "<AIT identifier>",
-  "vrs_pulse_sequence": "<integer>",
-  "declaration_hash": "<SHA-256 of exchange_declaration>",
-  "envelope_hash": "<SHA-256 of transmitted envelope>",
-  "receiving_attestation_hash": "<SHA-256 of receiving_attestation record>",
-  "exchange_duration_ms": "<integer>",
-  "payload_type": "PROOF_BUNDLE | PROOF_RECORD | PROOF_FRAGMENT | PROOF_QUERY_RESPONSE",
-  "content_hash": "<SHA-256 of this record's content>",
-  "previous_record_hash": "<SHA-256 of preceding chain record>",
-  "chain_hash": "<SHA-256(content_hash + previous_record_hash)>",
-  "record_timestamp_utc": "<ISO 8601>"
-}
-```
+AgenTwin enables continuous behavioral attestation rather than point-in-time certification. An agent with AgenTwin deployed can present fresh proof of its most recent behavior rather than a stale benchmark result.
 
-### 8.2 Anchoring Requirement
-
-The exchange chain record MUST be anchored to ProofRegister within the same campaign as the parent proof chain. The anchor MUST occur before the EXCHANGE_COMPLETE message is sent.
+This is the architectural difference between product certification and agent attestation. Product certification is periodic. Agent attestation is continuous.
 
 ---
 
-## 9. Failure Modes and Rejection Criteria
+## 9. Conformance
 
-### 9.1 Rejection at EXCHANGE_ACK
+An implementation is conformant with HV-A2P if:
 
-The receiving agent MUST reject the exchange and MUST NOT issue ACK if:
-
-- The sending agent AIT cannot be verified
-- The VRS commitment reference is missing, malformed, or unverifiable
-- The VRS pulse predates the exchange initiation by more than the declared tolerance window
-- The declared scope is absent
-
-### 9.2 Rejection at ENVELOPE_RECEIVED
-
-The receiving agent MUST return `integrity_check: FAIL` if:
-
-- The received envelope hash does not match the hash declared in the EXCHANGE_INIT
-- The payload hash in the envelope header does not match the payload content hash
-- The payload hash does not match the hash declared in the pre-exchange commitment
-- The envelope creation timestamp predates the VRS pulse
-
-### 9.3 Post-Rejection Handling
-
-A rejected exchange MUST be recorded as a chain event of type `AGENT_EXCHANGE_REJECTED` with the rejection reason declared. Rejection events are proof records. They MUST be anchored. A rejected exchange that is not recorded is a chain integrity failure.
-
-```json
-{
-  "record_type": "AGENT_EXCHANGE_REJECTED",
-  "exchange_id": "<UUID v4>",
-  "rejection_phase": "ACK | ENVELOPE_RECEIVED",
-  "rejection_reason": "<declared reason>",
-  "rejecting_agent_id": "<AIT identifier>"
-}
-```
+- ProofRequest includes all required fields including `nist_pulse_index` and `challenge`
+- ProofPresentation includes a valid `challenge_response` signed with the agent's key
+- T2 verification queries ProofRegister and confirms record existence and root hash match
+- T3 verification confirms ProofStamp token against HACKERverse public key
+- Failed verification at the required tier results in the requesting agent declining to proceed
 
 ---
 
-## 10. Multi-Agent Chains
+## 10. References
 
-In workflows where proof passes through three or more agents sequentially, each handoff MUST produce its own exchange record in the parent chain.
-
-### 10.1 Chain Continuation Requirements
-
-- Each receiving agent becomes the sending agent for the next handoff
-- The parent chain record from the prior exchange becomes the `previous_record_hash` for the next exchange record
-- The VRS commitment for each handoff MUST be a new commitment — prior pulse references cannot be reused
-- The proof bundle passed through multiple agents MUST carry the full exchange record history as an audit trail
-
-### 10.2 Fork Detection
-
-If the same proof bundle is transmitted to two different receiving agents from a single sending agent, both exchanges MUST be recorded as separate chain records. A fork is not invalid — but an unrecorded fork is a chain integrity failure.
-
----
-
-## 11. Identity and Authentication
-
-### 11.1 Agent Identity Token (AIT)
-
-An AIT is a credential uniquely identifying an agent instance. It MUST contain:
-
-```json
-{
-  "agent_identity_token": {
-    "agent_id": "<UUID v4 — unique per agent instance>",
-    "agent_name": "<human-readable name>",
-    "agent_version": "<version string>",
-    "agent_type": "<classification of agent function>",
-    "operator_id": "<identifier of controlling operator>",
-    "operator_name": "<human-readable operator name>",
-    "agent_fingerprint": "<SHA-256 of agent binary or configuration>",
-    "ait_issued_utc": "<ISO 8601>",
-    "ait_expires_utc": "<ISO 8601>",
-    "ait_signature": "<cryptographic signature over AIT content>"
-  }
-}
-```
-
-### 11.2 AIT Requirements
-
-- An AIT MUST be unique per agent instance — two instances of the same agent version MUST have different AITs
-- An AIT MUST be issued before the agent participates in any exchange
-- An AIT MUST be verifiable by the counterparty before handshake completion
-- An expired AIT MUST be treated as an unverifiable AIT
-- An agent that modifies its configuration after AIT issuance MUST obtain a new AIT before initiating or accepting exchanges — the fingerprint no longer matches
-
-### 11.3 Operator Accountability
-
-The operator identified in the AIT bears accountability for the agent's exchange behavior. An agent operating under an unverifiable or fraudulent AIT constitutes operator misconduct. This specification does not define enforcement mechanisms but notes that ProofRegister SHOULD maintain an operator accountability record as part of campaign registration.
-
----
-
-## 12. Conformance
-
-An implementation conforms to this specification if:
-
-1. It produces Exchange Declarations with VRS commitments before initiating any handshake
-2. It constructs Proof Envelopes with all required fields and valid hash relationships
-3. It executes the handshake sequence defined in Section 6 without modification to the message order
-4. It produces Receiving Attestations with verifiable signatures for every completed exchange
-5. It records every exchange — including rejected exchanges — as a proof chain event
-6. It anchors exchange chain records to ProofRegister within the same campaign as the parent chain
-7. It does not reuse VRS pulse references across multiple exchanges
-8. It issues new AITs when agent configuration changes
-
----
-
-## 13. Relationship to Other Proof Protocol Specifications
-
-| Document | Relationship |
-|----------|-------------|
-| Proof Protocol Specification (PP-SPEC-001) | Core protocol. HV-A2P extends chain record types to include AGENT_EXCHANGE and AGENT_EXCHANGE_REJECTED. |
-| Proof Validity Specification (PP-SPEC-002) | Validity tiers apply to exchange records. An exchange without receiving attestation is Proof-Attempted. |
-| ProofBundle Format Specification (PP-SPEC-003) | PROOF_BUNDLE payload type carries a ProofBundle as defined in PP-SPEC-003. |
-| ProofRegistry API Specification (PP-SPEC-004) | Exchange records are anchored and queryable via the ProofRegistry API. |
-| Witness Protocol Specification (PP-SPEC-005) | Witness declarations in the Proof Envelope follow class definitions in PP-SPEC-005. The receiving agent's attestation qualifies as a Class 1 automated witness at minimum. |
-
----
-
-## 14. Security Considerations
-
-**Replay Attacks**
-An attacker may attempt to replay a valid proof envelope to a receiving agent. Each exchange is bound to a unique VRS pulse. Receiving agents MUST reject any envelope whose VRS pulse has been used in a prior exchange in the same campaign.
-
-**Envelope Tampering**
-The hash chain across declaration, commitment, envelope header, payload, and receiving attestation creates a tamper-evident record at every layer. Any modification to any field at any layer will produce a hash mismatch detectable at verification.
-
-**Agent Impersonation**
-An attacker may attempt to impersonate a legitimate agent by presenting a fabricated AIT. AIT signatures MUST be verified before ACK. An unverifiable AIT MUST result in exchange rejection.
-
-**Malicious Receiving Agent**
-A compromised receiving agent may issue false attestations. The VRS commitment and envelope hash provide an independent verification path — a false attestation that contradicts the VRS-committed envelope hash is detectable on independent audit.
-
-**VRS Availability**
-If the VRS is unavailable, exchanges cannot be initiated under this specification. Implementations SHOULD implement VRS retry logic with declared timeout thresholds. Exchanges initiated without VRS commitment because of VRS unavailability are not valid exchanges under HV-A2P.
-
----
-
-## 15. IANA Considerations
-
-This document has no IANA considerations.
-
----
-
-## 16. References
-
+- PP-SPEC-001 Proof Protocol Specification: https://github.com/proofprotocol/Defensible-Knowledge-Proof
+- PP-SPEC-003 ProofBundle Format: https://github.com/proofprotocol/proofbundle-spec
+- PP-SPEC-006 Proof of Efficacy Score: https://github.com/proofprotocol/pes-spec
 - NIST Randomness Beacon: https://beacon.nist.gov
-- RFC 2119 — Key words for use in RFCs: https://www.rfc-editor.org/rfc/rfc2119
-- RFC 4122 — UUID specification: https://www.rfc-editor.org/rfc/rfc4122
-- Proof Protocol Specification (PP-SPEC-001): https://github.com/proofprotocol
-- Proof Validity Specification (PP-SPEC-002): https://github.com/proofprotocol
-- ProofBundle Format Specification (PP-SPEC-003): https://github.com/proofprotocol
-- Creative Commons CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+- ProofRegister: https://proofregister.com
+- ProofStamp: https://proofstamp.io
 
 ---
 
-## 17. Authors
+## 11. Authors
 
-Proof Economy Standards Alliance (PESA)  
-https://proofeconomy.foundation  
-contact@proofeconomy.foundation  
-
-*This specification is maintained by PESA. Governance of this specification follows the PESA practitioner-led model. Vendors may contribute but do not govern.*
+Craig Ellrod, Founder & CEO, Nebulonium, Inc. (d/b/a HACKERverse)  
+Castle Rock, Colorado  
+2026-07-13
 
 ---
 
-*Copyright 2026 Nebulonium, Inc. dba HACKERverse. Licensed under CC BY 4.0.*  
-*ProofStamp is a certification mark of Nebulonium, Inc.*
+*CC BY 4.0 — Attribution to Craig Ellrod / Nebulonium, Inc. / HACKERverse required.*
