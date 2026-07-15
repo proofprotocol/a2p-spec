@@ -1,10 +1,10 @@
-# PP-SPEC-007 · Agent-to-Agent Proof Protocol (HV-A2P)
+# PP-SPEC-007 · Agent-to-Agent Proof Protocol™ (HV-A2P™)
 
 **Document ID:** PP-SPEC-007  
 **Version:** 1.0  
 **Status:** Published  
 **License:** CC BY 4.0  
-**Maintained by:** Proof Economy Standards Alliance (PESA)  
+**Maintained by:** Proof Economy™ Standards Alliance (PESA)  
 **Repository:** https://github.com/proofprotocol/a2p-spec  
 **Published:** 2026-07-12  
 
@@ -12,19 +12,19 @@
 
 ## Abstract
 
-This specification defines the HACKERverse Agent-to-Agent Proof Protocol (HV-A2P): the trust signaling mechanism by which autonomous agents verify behavioral proof before accepting instructions from, transacting with, or delegating authority to other agents.
+This specification defines the HACKERverse Agent-to-Agent Proof Protocol™ (HV-A2P™): the trust signaling mechanism by which autonomous agents verify behavioral proof before accepting instructions from, transacting with, or delegating authority to other agents.
 
 In the quint economy — where agents transact with agents at machine speed across enterprise systems — trust cannot depend on human review. It must be cryptographic, verifiable, and anchored to an independent public record.
 
 Agents and humans do not trust agents. They trust proof.
 
-HV-A2P defines how that proof is requested, presented, verified, and recorded between autonomous agents.
+HV-A2P™ defines how that proof is requested, presented, verified, and recorded between autonomous agents.
 
 ---
 
 ## Status of This Document
 
-This document is a published specification of the Proof Protocol. It is released under the Creative Commons Attribution 4.0 International License (CC BY 4.0). You are free to share, implement, and build on it for any purpose including commercially, provided attribution is given to Nebulonium, Inc. / HACKERverse and the Proof Economy Standards Alliance (PESA).
+This document is a published specification of the Proof Protocol™. It is released under the Creative Commons Attribution 4.0 International License (CC BY 4.0). You are free to share, implement, and build on it for any purpose including commercially, provided attribution is given to Nebulonium, Inc. / HACKERverse and the Proof Economy™ Standards Alliance (PESA).
 
 ---
 
@@ -36,8 +36,8 @@ This document is a published specification of the Proof Protocol. It is released
 4. [Proof Request](#4-proof-request)
 5. [Proof Presentation](#5-proof-presentation)
 6. [Verification Procedure](#6-verification-procedure)
-7. [ProofRegister Integration](#7-proofregister-integration)
-8. [AgenTwin Witness Layer](#8-agentwin-witness-layer)
+7. [ProofRegister™ Integration](#7-proofregister-integration)
+8. [AgenTwin™ Witness Layer](#8-agentwin-witness-layer)
 9. [Conformance](#9-conformance)
 10. [References](#10-references)
 11. [Authors](#11-authors)
@@ -50,7 +50,7 @@ Autonomous agents are booking travel, executing trades, writing code, sending em
 
 The result is a trust vacuum at the core of the agentic economy. Agents delegate to agents that delegate to agents, with no verifiable record of behavior at any layer.
 
-HV-A2P fills that vacuum. It defines a lightweight proof handshake that any agent can implement to request, present, and verify behavioral proof before accepting an instruction or completing a transaction.
+HV-A2P™ fills that vacuum. It defines a lightweight proof handshake that any agent can implement to request, present, and verify behavioral proof before accepting an instruction or completing a transaction.
 
 ---
 
@@ -60,13 +60,13 @@ HV-A2P fills that vacuum. It defines a lightweight proof handshake that any agen
 
 **Presenting Agent** — the agent presenting proof of its own behavioral history.
 
-**ProofBundle** — the portable evidence artifact defined in PP-SPEC-003.
+**ProofBundle™** — the portable evidence artifact defined in PP-SPEC-003.
 
-**ProofRegister Record** — a permanent anchored record in ProofRegister identified by a Proof Record ID (PR-YYYY-NNNNN).
+**ProofRegister™ Record** — a permanent anchored record in ProofRegister™ identified by a Proof Record ID (PR-YYYY-NNNNN).
 
-**ProofStamp Token** — the certification mark authorization token issued by HACKERverse attesting that a product or agent meets Proof Protocol certification criteria.
+**ProofStamp™ Token** — the certification mark authorization token issued by HACKERverse attesting that a product or agent meets Proof Protocol™ certification criteria.
 
-**AgenTwin** — the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles for anchoring.
+**AgenTwin™** — the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles for anchoring.
 
 **Trust Tier** — the level of proof required before an agent proceeds with an interaction. Defined in Section 3.
 
@@ -74,13 +74,13 @@ HV-A2P fills that vacuum. It defines a lightweight proof handshake that any agen
 
 ## 3. Trust Tiers
 
-HV-A2P defines three trust tiers. The requesting agent declares the minimum tier required before proceeding.
+HV-A2P™ defines three trust tiers. The requesting agent declares the minimum tier required before proceeding.
 
 | Tier | Name | Requirement |
 |------|------|-------------|
 | T1 | Self-Asserted | Agent presents a signed identity claim. No proof required. Lowest trust. |
-| T2 | Registry-Verified | Agent presents a valid ProofRegister Record ID. Requesting agent verifies the record exists and is not revoked. |
-| T3 | Stamp-Certified | Agent presents a valid ProofStamp Token. Requesting agent verifies the token against the HACKERverse public key. Highest trust. |
+| T2 | Registry-Verified | Agent presents a valid ProofRegister™ Record ID. Requesting agent verifies the record exists and is not revoked. |
+| T3 | Stamp-Certified | Agent presents a valid ProofStamp™ Token. Requesting agent verifies the token against the HACKERverse public key. Highest trust. |
 
 T1 is the SAO tier — self-attesting, institutionally incomplete. T2 and T3 require independent verification. Agents operating in regulated environments or high-stakes workflows should require T3.
 
@@ -128,7 +128,7 @@ The presenting agent responds with a ProofPresentation:
 }
 ```
 
-The `challenge_response` proves the presenting agent controls the key that signed its receipts. A valid challenge response plus a valid ProofRegister record constitutes T2. A valid ProofStamp token constitutes T3.
+The `challenge_response` proves the presenting agent controls the key that signed its receipts. A valid challenge response plus a valid ProofRegister™ record constitutes T2. A valid ProofStamp™ token constitutes T3.
 
 ---
 
@@ -137,38 +137,38 @@ The `challenge_response` proves the presenting agent controls the key that signe
 Upon receiving a ProofPresentation the requesting agent:
 
 1. Verifies `challenge_response` against `proof.signer_key` and the original `challenge`
-2. If T2 or T3: queries ProofRegister at `proof.proofregister_uri` and confirms the record exists, is not revoked, and `root_hash` matches
+2. If T2 or T3: queries ProofRegister™ at `proof.proofregister_uri` and confirms the record exists, is not revoked, and `root_hash` matches
 3. If T3: verifies `proofstamp_token` against the HACKERverse published public key at proofstamp.io
-4. Records the verification result in its own AgenTwin witness log
+4. Records the verification result in its own AgenTwin™ witness log
 
 If verification fails at the required tier the requesting agent must not proceed with the interaction.
 
 ---
 
-## 7. ProofRegister Integration
+## 7. ProofRegister™ Integration
 
-ProofRegister (proofregister.com) is the canonical public ledger that T2 and T3 verification depends on. It exposes a simple query API:
+ProofRegister™ (proofregister.com) is the canonical public ledger that T2 and T3 verification depends on. It exposes a simple query API:
 
 ```
 GET https://proofregister.com/record/<proof_record_id>
 ```
 
-Returns the ProofBundle metadata, root hash, anchor timestamp, and revocation status. No authentication required for queries.
+Returns the ProofBundle™ metadata, root hash, anchor timestamp, and revocation status. No authentication required for queries.
 
-ProofRegister is not required for receipt validity. Receipts are independently verifiable offline. ProofRegister is required for T2 and T3 agent trust verification because it provides the permanent independent record that neither agent controls.
+ProofRegister™ is not required for receipt validity. Receipts are independently verifiable offline. ProofRegister™ is required for T2 and T3 agent trust verification because it provides the permanent independent record that neither agent controls.
 
 ---
 
-## 8. AgenTwin Witness Layer
+## 8. AgenTwin™ Witness Layer
 
-AgenTwin is the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles. In the context of HV-A2P:
+AgenTwin™ is the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles. In the context of HV-A2P™:
 
-- AgenTwin observes agent interactions in real time
-- For each interaction it assembles a ProofBundle containing receipt, pubkey, and verifier output
-- The ProofBundle is anchored to ProofRegister
+- AgenTwin™ observes agent interactions in real time
+- For each interaction it assembles a ProofBundle™ containing receipt, pubkey, and verifier output
+- The ProofBundle™ is anchored to ProofRegister™
 - The resulting Proof Record ID is available for use in future ProofPresentations
 
-AgenTwin enables continuous behavioral attestation rather than point-in-time certification. An agent with AgenTwin deployed can present fresh proof of its most recent behavior rather than a stale benchmark result.
+AgenTwin™ enables continuous behavioral attestation rather than point-in-time certification. An agent with AgenTwin™ deployed can present fresh proof of its most recent behavior rather than a stale benchmark result.
 
 This is the architectural difference between product certification and agent attestation. Product certification is periodic. Agent attestation is continuous.
 
@@ -176,24 +176,24 @@ This is the architectural difference between product certification and agent att
 
 ## 9. Conformance
 
-An implementation is conformant with HV-A2P if:
+An implementation is conformant with HV-A2P™ if:
 
 - ProofRequest includes all required fields including `nist_pulse_index` and `challenge`
 - ProofPresentation includes a valid `challenge_response` signed with the agent's key
-- T2 verification queries ProofRegister and confirms record existence and root hash match
-- T3 verification confirms ProofStamp token against HACKERverse public key
+- T2 verification queries ProofRegister™ and confirms record existence and root hash match
+- T3 verification confirms ProofStamp™ token against HACKERverse public key
 - Failed verification at the required tier results in the requesting agent declining to proceed
 
 ---
 
 ## 10. References
 
-- PP-SPEC-001 Proof Protocol Specification: https://github.com/proofprotocol/Defensible-Knowledge-Proof
-- PP-SPEC-003 ProofBundle Format: https://github.com/proofprotocol/proofbundle-spec
+- PP-SPEC-001 Proof Protocol™ Specification: https://github.com/proofprotocol/Defensible-Knowledge-Proof
+- PP-SPEC-003 ProofBundle™ Format: https://github.com/proofprotocol/proofbundle-spec
 - PP-SPEC-006 Proof of Efficacy Score: https://github.com/proofprotocol/pes-spec
 - NIST Randomness Beacon: https://beacon.nist.gov
-- ProofRegister: https://proofregister.com
-- ProofStamp: https://proofstamp.io
+- ProofRegister™: https://proofregister.com
+- ProofStamp™: https://proofstamp.io
 
 ---
 
