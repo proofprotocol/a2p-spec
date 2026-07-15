@@ -1,4 +1,4 @@
-# PP-SPEC-007 · Agent-to-Agent Proof Protocol™ (HV-A2P™)
+# PP-SPEC-007 · Agent-to-Agent Proof Protocol™ (PP-A2P™)
 
 **Document ID:** PP-SPEC-007  
 **Version:** 1.0  
@@ -12,13 +12,13 @@
 
 ## Abstract
 
-This specification defines the HACKERverse Agent-to-Agent Proof Protocol™ (HV-A2P™): the trust signaling mechanism by which autonomous agents verify behavioral proof before accepting instructions from, transacting with, or delegating authority to other agents.
+This specification defines the HACKERverse Agent-to-Agent Proof Protocol™ (PP-A2P™): the trust signaling mechanism by which autonomous agents verify behavioral proof before accepting instructions from, transacting with, or delegating authority to other agents.
 
 In the quint economy — where agents transact with agents at machine speed across enterprise systems — trust cannot depend on human review. It must be cryptographic, verifiable, and anchored to an independent public record.
 
 Agents and humans do not trust agents. They trust proof.
 
-HV-A2P™ defines how that proof is requested, presented, verified, and recorded between autonomous agents.
+PP-A2P™ defines how that proof is requested, presented, verified, and recorded between autonomous agents.
 
 ---
 
@@ -50,7 +50,7 @@ Autonomous agents are booking travel, executing trades, writing code, sending em
 
 The result is a trust vacuum at the core of the agentic economy. Agents delegate to agents that delegate to agents, with no verifiable record of behavior at any layer.
 
-HV-A2P™ fills that vacuum. It defines a lightweight proof handshake that any agent can implement to request, present, and verify behavioral proof before accepting an instruction or completing a transaction.
+PP-A2P™ fills that vacuum. It defines a lightweight proof handshake that any agent can implement to request, present, and verify behavioral proof before accepting an instruction or completing a transaction.
 
 ---
 
@@ -74,7 +74,7 @@ HV-A2P™ fills that vacuum. It defines a lightweight proof handshake that any a
 
 ## 3. Trust Tiers
 
-HV-A2P™ defines three trust tiers. The requesting agent declares the minimum tier required before proceeding.
+PP-A2P™ defines three trust tiers. The requesting agent declares the minimum tier required before proceeding.
 
 | Tier | Name | Requirement |
 |------|------|-------------|
@@ -161,7 +161,7 @@ ProofRegister™ is not required for receipt validity. Receipts are independentl
 
 ## 8. AgenTwin™ Witness Layer
 
-AgenTwin™ is the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles. In the context of HV-A2P™:
+AgenTwin™ is the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles. In the context of PP-A2P™:
 
 - AgenTwin™ observes agent interactions in real time
 - For each interaction it assembles a ProofBundle™ containing receipt, pubkey, and verifier output
@@ -176,7 +176,7 @@ This is the architectural difference between product certification and agent att
 
 ## 9. Conformance
 
-An implementation is conformant with HV-A2P™ if:
+An implementation is conformant with PP-A2P™ if:
 
 - ProofRequest includes all required fields including `nist_pulse_index` and `challenge`
 - ProofPresentation includes a valid `challenge_response` signed with the agent's key
