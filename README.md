@@ -14,7 +14,7 @@
 
 This specification defines the HACKERverse Agent-to-Agent Proof Protocol™ (PP-A2P™): the trust signaling mechanism by which autonomous agents verify behavioral proof before accepting instructions from, transacting with, or delegating authority to other agents.
 
-In the quint economy — where agents transact with agents at machine speed across enterprise systems — trust cannot depend on human review. It must be cryptographic, verifiable, and anchored to an independent public record.
+In the quint economy - where agents transact with agents at machine speed across enterprise systems - trust cannot depend on human review. It must be cryptographic, verifiable, and anchored to an independent public record.
 
 Agents and humans do not trust agents. They trust proof.
 
@@ -56,19 +56,19 @@ PP-A2P™ fills that vacuum. It defines a lightweight proof handshake that any a
 
 ## 2. Terminology
 
-**Requesting Agent** — the agent requesting proof from a counterparty before proceeding.
+**Requesting Agent** - the agent requesting proof from a counterparty before proceeding.
 
-**Presenting Agent** — the agent presenting proof of its own behavioral history.
+**Presenting Agent** - the agent presenting proof of its own behavioral history.
 
-**ProofBundle™** — the portable evidence artifact defined in PP-SPEC-003.
+**ProofBundle™** - the portable evidence artifact defined in PP-SPEC-003.
 
-**ProofRegister™ Record** — a permanent anchored record in ProofRegister™ identified by a Proof Record ID (PR-YYYY-NNNNN).
+**ProofRegister™ Record** - a permanent anchored record in ProofRegister™ identified by a Proof Record ID (PR-YYYY-NNNNN).
 
-**ProofStamp™ Token** — the certification mark authorization token issued by HACKERverse attesting that a product or agent meets Proof Protocol™ certification criteria.
+**ProofStamp™ Token** - the certification mark authorization token issued by HACKERverse attesting that a product or agent meets Proof Protocol™ certification criteria.
 
-**AgenTwin™** — the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles for anchoring.
+**AgenTwin™** - the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles for anchoring.
 
-**Trust Tier** — the level of proof required before an agent proceeds with an interaction. Defined in Section 3.
+**Trust Tier** - the level of proof required before an agent proceeds with an interaction. Defined in Section 3.
 
 ---
 
@@ -82,7 +82,7 @@ PP-A2P™ defines three trust tiers. The requesting agent declares the minimum t
 | T2 | Registry-Verified | Agent presents a valid ProofRegister™ Record ID. Requesting agent verifies the record exists and is not revoked. |
 | T3 | Stamp-Certified | Agent presents a valid ProofStamp™ Token. Requesting agent verifies the token against the HACKERverse public key. Highest trust. |
 
-T1 is the SAO tier — self-attesting, institutionally incomplete. T2 and T3 require independent verification. Agents operating in regulated environments or high-stakes workflows should require T3.
+T1 is the SAO tier - self-attesting, institutionally incomplete. T2 and T3 require independent verification. Agents operating in regulated environments or high-stakes workflows should require T3.
 
 ---
 
@@ -205,4 +205,4 @@ Castle Rock, Colorado
 
 ---
 
-*CC BY 4.0 — Attribution to Craig Ellrod / Nebulonium, Inc. required.*
+*CC BY 4.0 - Attribution to Craig Ellrod / Nebulonium, Inc. required.*
