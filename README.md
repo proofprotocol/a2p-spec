@@ -39,7 +39,7 @@ This document is a published specification of the Proof Protocol™. It is relea
 5. [Proof Presentation](#5-proof-presentation)
 6. [Verification Procedure](#6-verification-procedure)
 7. [ProofRegister™ Integration](#7-proofregister-integration)
-8. [AgenTwin™ Witness Layer](#8-agentwin-witness-layer)
+8. [ProofWitness™ Witness Layer](#8-proofwitness-witness-layer)
 9. [Conformance](#9-conformance)
 10. [References](#10-references)
 11. [Authors](#11-authors)
@@ -68,7 +68,7 @@ PP-A2P™ fills that vacuum. It defines a lightweight proof handshake that any a
 
 **ProofStamp™ Token** - the certification mark authorization token issued by HACKERverse attesting that a product or agent meets Proof Protocol™ certification criteria.
 
-**AgenTwin™** - the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles for anchoring.
+**ProofWitness™** - the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles for anchoring.
 
 **Trust Tier** - the level of proof required before an agent proceeds with an interaction. Defined in Section 3.
 
@@ -141,7 +141,7 @@ Upon receiving a ProofPresentation the requesting agent:
 1. Verifies `challenge_response` against `proof.signer_key` and the original `challenge`
 2. If T2 or T3: queries ProofRegister™ at `proof.proofregister_uri` and confirms the record exists, is not revoked, and `root_hash` matches
 3. If T3: verifies `proofstamp_token` against the HACKERverse published public key at proofstamp.io
-4. Records the verification result in its own AgenTwin™ witness log
+4. Records the verification result in its own ProofWitness™ witness log
 
 If verification fails at the required tier the requesting agent must not proceed with the interaction.
 
@@ -161,16 +161,16 @@ ProofRegister™ is not required for receipt validity. Receipts are independentl
 
 ---
 
-## 8. AgenTwin™ Witness Layer
+## 8. ProofWitness™ Witness Layer
 
-AgenTwin™ is the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles. In the context of PP-A2P™:
+ProofWitness™ is the shadow attestation layer that witnesses agent runtime behavior and assembles ProofBundles. In the context of PP-A2P™:
 
-- AgenTwin™ observes agent interactions in real time
+- ProofWitness™ observes agent interactions in real time
 - For each interaction it assembles a ProofBundle™ containing receipt, pubkey, and verifier output
 - The ProofBundle™ is anchored to ProofRegister™
 - The resulting Proof Record ID is available for use in future ProofPresentations
 
-AgenTwin™ enables continuous behavioral attestation rather than point-in-time certification. An agent with AgenTwin™ deployed can present fresh proof of its most recent behavior rather than a stale benchmark result.
+ProofWitness™ enables continuous behavioral attestation rather than point-in-time certification. An agent with ProofWitness™ deployed can present fresh proof of its most recent behavior rather than a stale benchmark result.
 
 This is the architectural difference between product certification and agent attestation. Product certification is periodic. Agent attestation is continuous.
 
