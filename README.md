@@ -10,6 +10,11 @@
 **Repository:** https://github.com/proofprotocol/a2p-spec  
 **Published:** 2026-07-12  
 
+## Cite as
+
+Ellrod, C. (2026). PP-SPEC-007: Agent-to-Agent Proof Protocol (PP-A2P).
+Proof Economy Standards Alliance (PESA). https://doi.org/10.5281/zenodo.21379780
+
 ---
 
 ## Abstract
