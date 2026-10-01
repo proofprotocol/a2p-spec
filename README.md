@@ -204,6 +204,19 @@ An implementation is conformant with PP-A2P™ if:
 
 ---
 
+## Extensions
+
+PP-A2P messages MAY use the universal Proof Protocol `extensions` mechanism defined by **PP-SPEC-001**. Extension keys MUST use globally distinguishable namespaces; reverse-domain notation is RECOMMENDED.
+
+Agents MAY exchange namespaced capabilities, evidence references, or domain metadata. Unknown extensions MUST be safely ignorable and MUST NOT weaken proof verification or core handshake requirements.
+
+A conforming implementation MUST be able to ignore an unknown extension and still evaluate this specification's core semantics. Extension-specific validation is supplemental and MUST remain distinguishable from core Proof Protocol conformance.
+
+> **Extensions enrich the object. They do not redefine the protocol.**
+
+---
+
+
 ## 11. Authors
 
 Craig Ellrod, Founder & CEO, Nebulonium, Inc. (d/b/a HACKERverse)  
