@@ -3,7 +3,7 @@
 **Document ID:** PP-SPEC-007  
 **Version:** 1.0  
 **Status:** Published  
-**License:** CC BY 4.0  
+**License:** Greater Good Commercial License 1.0 (GGL-C-1.0); text CC BY-ND 4.0 under Part S. See LICENSE.md.
 **Maintained by:** Proof Economy™ Standards Alliance (PESA)  
 **Repository:** https://github.com/proofprotocol/a2p-spec  
 **Published:** 2026-07-12  
